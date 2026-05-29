@@ -1,0 +1,531 @@
+import {
+  Snowflake,
+  CloudSun,
+  Sun,
+  Palmtree,
+  Wallet,
+  DollarSign,
+  Gem,
+  Crown,
+  Clock,
+  Calendar,
+  CalendarDays,
+  CalendarRange,
+  Landmark,
+  TreePine,
+  Mountain,
+  UtensilsCrossed,
+  Bed,
+  Sparkles,
+  Globe,
+  Map,
+  Backpack,
+  Hotel,
+  Compass,
+  Heart,
+  Users,
+  User,
+  Baby,
+  Footprints,
+  Waves,
+  Building,
+  ShoppingBag,
+  Camera,
+  Music,
+  Soup,
+  Pizza,
+  Salad,
+  Beef,
+  Home,
+  Building2,
+  Tent,
+  Shield,
+  ShieldCheck,
+  AlertTriangle,
+  MessageCircle,
+  Languages,
+  HelpCircle,
+  Moon,
+  Star,
+  Sunrise,
+  Sunset,
+  PartyPopper,
+  Wine,
+  Coffee,
+  Flower,
+  Bird,
+  Fish,
+  Bike,
+  Car,
+  Train,
+  Plane,
+  Ship,
+  Wifi,
+  WifiOff,
+  Signal,
+  Battery,
+  Zap,
+  Flame,
+  Anchor,
+  Castle,
+  Church,
+  Theater,
+  Palette,
+  BookOpen,
+  GraduationCap,
+  Dumbbell,
+  HeartPulse,
+  Stethoscope,
+  Apple,
+  Croissant,
+  IceCream,
+  Leaf,
+  Trees,
+  Umbrella,
+  type LucideIcon,
+} from "lucide-react"
+
+export interface TestOption {
+  value: string
+  label: string
+  icon: LucideIcon
+}
+
+export interface TestQuestion {
+  id: string
+  category: string
+  question: string
+  type: "single" | "multiple"
+  maxSelections?: number
+  options: TestOption[]
+}
+
+// Expanded test with 20 diverse questions
+export const testQuestions: TestQuestion[] = [
+  // 1. Climate preference
+  {
+    id: "climate",
+    category: "climate",
+    question: "¿Qué tipo de clima prefiere para su viaje?",
+    type: "single",
+    options: [
+      { value: "frio", label: "Frío", icon: Snowflake },
+      { value: "templado", label: "Templado", icon: CloudSun },
+      { value: "calido", label: "Cálido", icon: Sun },
+      { value: "tropical", label: "Tropical", icon: Palmtree },
+    ],
+  },
+  // 2. Budget
+  {
+    id: "budget",
+    category: "budget",
+    question: "¿Cuál es su presupuesto aproximado para el viaje?",
+    type: "single",
+    options: [
+      { value: "bajo", label: "Económico", icon: Wallet },
+      { value: "medio", label: "Moderado", icon: DollarSign },
+      { value: "alto", label: "Cómodo", icon: Gem },
+      { value: "premium", label: "Premium", icon: Crown },
+    ],
+  },
+  // 3. Duration
+  {
+    id: "duration",
+    category: "duration",
+    question: "¿Cuánto tiempo tiene disponible para viajar?",
+    type: "single",
+    options: [
+      { value: "corto", label: "3-5 días", icon: Clock },
+      { value: "medio", label: "1 semana", icon: Calendar },
+      { value: "largo", label: "2 semanas", icon: CalendarDays },
+      { value: "extendido", label: "Más de 2 semanas", icon: CalendarRange },
+    ],
+  },
+  // 4. Main interests
+  {
+    id: "interests",
+    category: "interests",
+    question: "¿Qué le interesa más de un destino? (Seleccione hasta 3)",
+    type: "multiple",
+    maxSelections: 3,
+    options: [
+      { value: "cultura", label: "Cultura", icon: Landmark },
+      { value: "naturaleza", label: "Naturaleza", icon: TreePine },
+      { value: "aventura", label: "Aventura", icon: Mountain },
+      { value: "gastronomia", label: "Gastronomía", icon: UtensilsCrossed },
+      { value: "relax", label: "Relax", icon: Bed },
+      { value: "historia", label: "Historia", icon: Sparkles },
+    ],
+  },
+  // 5. Travel style
+  {
+    id: "travelStyle",
+    category: "travel_style",
+    question: "¿Cuál es su estilo de viaje preferido?",
+    type: "single",
+    options: [
+      { value: "mochilero", label: "Mochilero", icon: Backpack },
+      { value: "comfort", label: "Confort", icon: Hotel },
+      { value: "lujo", label: "Lujo", icon: Crown },
+      { value: "cultural", label: "Cultural", icon: Compass },
+    ],
+  },
+  // 6. Continent
+  {
+    id: "continent",
+    category: "continent",
+    question: "¿Qué región del mundo le gustaría explorar?",
+    type: "single",
+    options: [
+      { value: "europa", label: "Europa", icon: Globe },
+      { value: "asia", label: "Asia", icon: Map },
+      { value: "americas", label: "Américas", icon: Globe },
+      { value: "africa", label: "África", icon: Map },
+      { value: "oceania", label: "Oceanía", icon: Globe },
+    ],
+  },
+  // 7. Activities
+  {
+    id: "activities",
+    category: "activities",
+    question: "¿Qué actividades disfruta más? (Seleccione hasta 3)",
+    type: "multiple",
+    maxSelections: 3,
+    options: [
+      { value: "senderismo", label: "Senderismo", icon: Footprints },
+      { value: "playa", label: "Playa", icon: Waves },
+      { value: "museos", label: "Museos", icon: Building },
+      { value: "compras", label: "Compras", icon: ShoppingBag },
+      { value: "fotografia", label: "Fotografía", icon: Camera },
+      { value: "vida_nocturna", label: "Vida Nocturna", icon: Music },
+    ],
+  },
+  // 8. Food preferences
+  {
+    id: "food",
+    category: "food",
+    question: "¿Qué tipo de gastronomía prefiere?",
+    type: "single",
+    options: [
+      { value: "local", label: "Local típica", icon: Soup },
+      { value: "internacional", label: "Internacional", icon: Pizza },
+      { value: "saludable", label: "Saludable", icon: Salad },
+      { value: "gourmet", label: "Gourmet", icon: Beef },
+    ],
+  },
+  // 9. Accommodation
+  {
+    id: "accommodation",
+    category: "accommodation",
+    question: "¿Qué tipo de alojamiento prefiere?",
+    type: "single",
+    options: [
+      { value: "hostel", label: "Hostal", icon: Home },
+      { value: "hotel", label: "Hotel", icon: Building2 },
+      { value: "apartamento", label: "Apartamento", icon: Home },
+      { value: "glamping", label: "Glamping", icon: Tent },
+    ],
+  },
+  // 10. Companion
+  {
+    id: "companion",
+    category: "companion",
+    question: "¿Con quién viajará?",
+    type: "single",
+    options: [
+      { value: "solo", label: "Solo/a", icon: User },
+      { value: "pareja", label: "En pareja", icon: Heart },
+      { value: "amigos", label: "Con amigos", icon: Users },
+      { value: "familia", label: "En familia", icon: Baby },
+    ],
+  },
+  // 11. Safety preference (NEW)
+  {
+    id: "safety",
+    category: "safety",
+    question: "¿Qué nivel de seguridad busca en su destino?",
+    type: "single",
+    options: [
+      { value: "muy_seguro", label: "Muy seguro", icon: ShieldCheck },
+      { value: "seguro", label: "Seguro", icon: Shield },
+      { value: "moderado", label: "Moderado", icon: AlertTriangle },
+      { value: "aventurero", label: "Aventurero", icon: Zap },
+    ],
+  },
+  // 12. Language preference (NEW)
+  {
+    id: "language",
+    category: "language",
+    question: "¿Qué importancia tiene el idioma en su viaje?",
+    type: "single",
+    options: [
+      { value: "espanol", label: "Solo español", icon: MessageCircle },
+      { value: "ingles", label: "Inglés suficiente", icon: Languages },
+      { value: "aprender", label: "Quiero aprender", icon: GraduationCap },
+      { value: "indiferente", label: "No importa", icon: HelpCircle },
+    ],
+  },
+  // 13. Season preference (NEW)
+  {
+    id: "season",
+    category: "season",
+    question: "¿En qué época del año prefiere viajar?",
+    type: "single",
+    options: [
+      { value: "primavera", label: "Primavera", icon: Flower },
+      { value: "verano", label: "Verano", icon: Sun },
+      { value: "otono", label: "Otoño", icon: Leaf },
+      { value: "invierno", label: "Invierno", icon: Snowflake },
+    ],
+  },
+  // 14. Nightlife preference (NEW)
+  {
+    id: "nightlife",
+    category: "nightlife",
+    question: "¿Qué tipo de vida nocturna prefiere?",
+    type: "single",
+    options: [
+      { value: "tranquila", label: "Tranquila", icon: Moon },
+      { value: "cenas", label: "Cenas especiales", icon: Wine },
+      { value: "bares", label: "Bares y cafés", icon: Coffee },
+      { value: "fiestas", label: "Fiestas", icon: PartyPopper },
+    ],
+  },
+  // 15. Nature type (NEW)
+  {
+    id: "natureType",
+    category: "nature",
+    question: "¿Qué tipo de naturaleza le atrae más?",
+    type: "single",
+    options: [
+      { value: "montanas", label: "Montañas", icon: Mountain },
+      { value: "playas", label: "Playas", icon: Waves },
+      { value: "bosques", label: "Bosques", icon: Trees },
+      { value: "desiertos", label: "Desiertos", icon: Sun },
+      { value: "selva", label: "Selva", icon: Bird },
+    ],
+  },
+  // 16. Culture type (NEW)
+  {
+    id: "cultureType",
+    category: "culture",
+    question: "¿Qué aspecto cultural le interesa más?",
+    type: "single",
+    options: [
+      { value: "arquitectura", label: "Arquitectura", icon: Castle },
+      { value: "religion", label: "Religión", icon: Church },
+      { value: "arte", label: "Arte", icon: Palette },
+      { value: "tradiciones", label: "Tradiciones", icon: Theater },
+      { value: "literatura", label: "Literatura", icon: BookOpen },
+    ],
+  },
+  // 17. Adventure level (NEW)
+  {
+    id: "adventureLevel",
+    category: "adventure_level",
+    question: "¿Qué nivel de aventura busca?",
+    type: "single",
+    options: [
+      { value: "relajado", label: "Relajado", icon: Bed },
+      { value: "moderado", label: "Moderado", icon: Bike },
+      { value: "activo", label: "Activo", icon: Dumbbell },
+      { value: "extremo", label: "Extremo", icon: Flame },
+    ],
+  },
+  // 18. Transport preference (NEW)
+  {
+    id: "transport",
+    category: "transport",
+    question: "¿Cómo prefiere moverse en el destino?",
+    type: "single",
+    options: [
+      { value: "caminando", label: "Caminando", icon: Footprints },
+      { value: "transporte", label: "Transporte público", icon: Train },
+      { value: "auto", label: "Auto rentado", icon: Car },
+      { value: "tours", label: "Tours organizados", icon: Compass },
+    ],
+  },
+  // 19. Connectivity needs (NEW)
+  {
+    id: "connectivity",
+    category: "connectivity",
+    question: "¿Qué tan importante es la conectividad (WiFi/datos)?",
+    type: "single",
+    options: [
+      { value: "esencial", label: "Esencial", icon: Wifi },
+      { value: "importante", label: "Importante", icon: Signal },
+      { value: "ocasional", label: "Ocasional", icon: Battery },
+      { value: "desconexion", label: "Quiero desconectarme", icon: WifiOff },
+    ],
+  },
+  // 20. Health considerations
+  {
+    id: "health",
+    category: "health",
+    question: "¿Tiene consideraciones especiales de salud?",
+    type: "single",
+    options: [
+      { value: "ninguna", label: "Ninguna", icon: HeartPulse },
+      { value: "alergias", label: "Alergias alimentarias", icon: Apple },
+      { value: "movilidad", label: "Movilidad reducida", icon: Footprints },
+      { value: "medica", label: "Necesito acceso médico", icon: Stethoscope },
+    ],
+  },
+  // 21. Photography interest
+  {
+    id: "photography",
+    category: "photography",
+    question: "¿Qué tan importante es la fotografía en su viaje?",
+    type: "single",
+    options: [
+      { value: "muy_importante", label: "Muy importante", icon: Camera },
+      { value: "importante", label: "Importante", icon: Camera },
+      { value: "casual", label: "Solo recuerdos", icon: Heart },
+      { value: "indiferente", label: "No me interesa", icon: HelpCircle },
+    ],
+  },
+  // 22. Crowd preference
+  {
+    id: "crowdPreference",
+    category: "crowds",
+    question: "¿Cómo se siente con las multitudes?",
+    type: "single",
+    options: [
+      { value: "evitar", label: "Prefiero evitarlas", icon: User },
+      { value: "tolerar", label: "Las tolero", icon: Users },
+      { value: "disfrutar", label: "Me gustan", icon: PartyPopper },
+      { value: "indiferente", label: "Me da igual", icon: HelpCircle },
+    ],
+  },
+  // 23. Shopping interest
+  {
+    id: "shopping",
+    category: "shopping",
+    question: "¿Qué tipo de compras le interesan?",
+    type: "single",
+    options: [
+      { value: "artesanias", label: "Artesanías locales", icon: Palette },
+      { value: "moda", label: "Moda y ropa", icon: ShoppingBag },
+      { value: "mercados", label: "Mercados locales", icon: Building },
+      { value: "nada", label: "No me interesa", icon: HelpCircle },
+    ],
+  },
+  // 24. Sustainability
+  {
+    id: "sustainability",
+    category: "sustainability",
+    question: "¿Qué tan importante es el turismo sostenible para usted?",
+    type: "single",
+    options: [
+      { value: "muy_importante", label: "Muy importante", icon: Leaf },
+      { value: "importante", label: "Importante", icon: Trees },
+      { value: "poco", label: "Poco importante", icon: Globe },
+      { value: "indiferente", label: "Indiferente", icon: HelpCircle },
+    ],
+  },
+  // 25. Water activities
+  {
+    id: "waterActivities",
+    category: "water",
+    question: "¿Le interesan las actividades acuáticas?",
+    type: "single",
+    options: [
+      { value: "buceo", label: "Buceo/Snorkel", icon: Fish },
+      { value: "surf", label: "Surf/Deportes", icon: Waves },
+      { value: "relajar", label: "Solo relajarme", icon: Umbrella },
+      { value: "no", label: "No me interesan", icon: Mountain },
+    ],
+  },
+]
+
+// Icon name mapping for dynamic questions from Ollama
+export const iconNameToComponent: Record<string, LucideIcon> = {
+  Snowflake,
+  CloudSun,
+  Sun,
+  Palmtree,
+  Wallet,
+  DollarSign,
+  Gem,
+  Crown,
+  Clock,
+  Calendar,
+  CalendarDays,
+  CalendarRange,
+  Landmark,
+  TreePine,
+  Mountain,
+  UtensilsCrossed,
+  Bed,
+  Sparkles,
+  Globe,
+  Map,
+  Backpack,
+  Hotel,
+  Compass,
+  Heart,
+  Users,
+  User,
+  Baby,
+  Footprints,
+  Waves,
+  Building,
+  ShoppingBag,
+  Camera,
+  Music,
+  Soup,
+  Pizza,
+  Salad,
+  Beef,
+  Home,
+  Building2,
+  Tent,
+  Shield,
+  ShieldCheck,
+  AlertTriangle,
+  MessageCircle,
+  Languages,
+  HelpCircle,
+  Moon,
+  Star,
+  Sunrise,
+  Sunset,
+  PartyPopper,
+  Wine,
+  Coffee,
+  Flower,
+  Bird,
+  Fish,
+  Bike,
+  Car,
+  Train,
+  Plane,
+  Ship,
+  Wifi,
+  WifiOff,
+  Signal,
+  Battery,
+  Zap,
+  Flame,
+  Anchor,
+  Castle,
+  Church,
+  Theater,
+  Palette,
+  BookOpen,
+  GraduationCap,
+  Dumbbell,
+  HeartPulse,
+  Stethoscope,
+  Apple,
+  Croissant,
+  IceCream,
+  Leaf,
+  Trees,
+  Umbrella,
+}
+
+// Helper to get icon component from name string (for Ollama generated questions)
+export function getIconByName(name: string): LucideIcon {
+  return iconNameToComponent[name] || HelpCircle
+}

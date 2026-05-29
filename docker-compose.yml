@@ -1,0 +1,61 @@
+# WanderIA - Docker Compose Configuration
+# Use for local development and deployment
+
+version: '3.8'
+
+services:
+  wanderia:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wanderia-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_PATH=/app/data/wanderia.db
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-key-change-in-production}
+      - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:3b}
+    volumes:
+      # Persist database data
+      - wanderia-data:/app/data
+    restart: unless-stopped
+    networks:
+      - wanderia-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Ollama service for local AI
+  ollama:
+    image: ollama/ollama:latest
+    container_name: wanderia-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - wanderia-network
+    # Uncomment for GPU support (NVIDIA)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  wanderia-data:
+    driver: local
+  ollama-data:
+    driver: local
+
+networks:
+  wanderia-network:
+    driver: bridge

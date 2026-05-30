@@ -1,65 +1,76 @@
-# WanderIA - Recomendador Inteligente de Destinos de Viaje
+# WanderIA — Recomendador Inteligente de Destinos de Viaje
 
-WanderIA es una aplicacion web **Powered by AI** que utiliza inteligencia artificial (Ollama con LLama 3.2:3b) para recomendar destinos de viaje personalizados. A partir de un test de perfilado de 20 preguntas extensas, el motor de IA analiza las preferencias del usuario (clima, presupuesto, intereses, estilo de viaje, seguridad, idioma, etc.) y genera recomendaciones con informacion detallada sobre cultura, gastronomia, costos estimados, clima y vuelos reales.
+WanderIA es una aplicación web **impulsada por IA** que recomienda destinos de viaje personalizados. A través de un test de perfilado de hasta 25 preguntas (generadas dinámicamente por Ollama o de un banco estático), el motor analiza las preferencias del usuario —clima, presupuesto, intereses, seguridad, idioma, etc.— y genera recomendaciones con información detallada sobre cultura, gastronomía, costos, clima y vuelos reales.
 
 ---
 
-## Tecnologias Utilizadas
+## Tecnologías Utilizadas
 
 ### Frontend
 
-| Tecnologia | Version | Uso |
+| Tecnología | Versión | Uso |
 |---|---|---|
 | **Next.js** | 16.1.6 | Framework principal (App Router, API Routes, SSR) |
 | **React** | 19.2.4 | Biblioteca UI con hooks y Context API |
-| **TypeScript** | 5.7.3 | Tipado estatico en todo el proyecto |
-| **Tailwind CSS** | 4.2.0 | Sistema de estilos utility-first con design tokens |
-| **lucide-react** | 0.564.0 | Libreria de iconos (unica libreria de iconos usada) |
+| **TypeScript** | 5.7.3 | Tipado estático en todo el proyecto |
+| **Tailwind CSS** | 4.2.0 | Estilos utility-first con design tokens |
+| **lucide-react** | 0.564.0 | Biblioteca de iconos (única librería de iconos) |
+| **shadcn/ui** | — | Componentes accesibles sobre Radix UI |
 
 ### Backend (API Routes de Next.js)
 
-La arquitectura simula el patron de APIs REST que usaria un backend Django REST Framework. Las API Routes de Next.js actuan como endpoints modulares equivalentes a los views de Django.
-
-| Endpoint | Metodo | Descripcion |
+| Endpoint | Método | Descripción |
 |---|---|---|
-| `/api/auth/signup` | POST | Registro de usuarios con hash SHA-256 |
-| `/api/auth/login` | POST | Autenticacion con verificacion de hash |
-| `/api/recommendations` | POST | Motor de IA con pesos configurables (protegido JWT) |
-| `/api/ollama` | GET/POST | Integracion con Ollama para preguntas dinamicas |
+| `/api/auth/signup` | POST | Registro con validación de mayoría de edad y hash SHA-256 |
+| `/api/auth/login` | POST | Autenticación con verificación de hash |
+| `/api/auth/change-password` | POST | Cambio de contraseña autenticado |
+| `/api/recommendations` | POST | Motor de scoring con pesos configurables (protegido JWT) |
+| `/api/ollama` | GET/POST | Integración con Ollama para preguntas y recomendaciones dinámicas |
+| `/api/flights` | GET | Información de vuelos estimada con redirección a Skyscanner |
+| `/api/favorites` | GET/POST/DELETE | Gestión de destinos favoritos con calificación por estrellas |
+| `/api/feedback` | GET/POST/PATCH/DELETE | Comentarios y sentimiento sobre recomendaciones |
+| `/api/admin/destinations` | GET/POST | CRUD de destinos (solo admin) |
+| `/api/admin/destinations/[id]` | GET/PUT/DELETE/PATCH | Operaciones sobre destino individual (solo admin) |
+| `/api/health` | GET | Health check para Docker/Kubernetes |
+| `/api/debug/jwt` | GET/POST | Diagnóstico del sistema JWT |
 
-### IA - Ollama (LLama 3.2:3b)
+### IA — Ollama (LLaMA 3.2:3b)
 
-| Componente | Descripcion |
+| Componente | Descripción |
 |---|---|
-| **Modelo** | `llama3.2:3b` ejecutandose localmente via Ollama |
-| **Endpoint Base** | `http://localhost:11434/api/generate` |
-| **Funcionalidades** | Generacion de preguntas dinamicas, recomendaciones personalizadas |
-| **Prompt System** | Incluye especificacion de iconos Lucide para UI dinamica |
+| **Modelo** | `llama3.2:3b` ejecutándose localmente vía Ollama |
+| **Endpoint base** | `http://localhost:11434/api/generate` |
+| **Funcionalidades** | Generación dinámica de preguntas por lotes, recomendaciones personalizadas |
+| **Caché** | Preguntas generadas se cachean 24 h en `localStorage` del cliente |
+| **Contexto de usuario** | Perfil abstracto de preferencias derivado de favoritos y feedback (sin mencionar destinos específicos) |
+| **Fallback** | Si Ollama no está disponible, se usan las 25 preguntas estáticas incluidas |
 
-### Base de Datos (SQLite)
+### Base de Datos (SQLite + better-sqlite3)
 
-| Tabla | Descripcion |
+| Tabla | Descripción |
 |---|---|
-| `users` | Usuarios con hash de contrasena (SHA-256 con salt) |
-| `user_preferences` | Pesos configurables (1-10) por categoria |
-| `test_sessions` | Historial de tests tomados |
-| `test_answers` | Respuestas individuales por sesion |
-| `recommendations` | Recomendaciones generadas por IA |
-| `ai_questions_cache` | Cache de preguntas generadas por Ollama |
+| `users` | Usuarios con hash SHA-256+salt, fecha de nacimiento y rol |
+| `destinations` | Destinos con atributos extendidos; auto-seeded si la tabla está vacía |
+| `user_preferences` | Pesos configurables (1–10) por categoría |
+| `test_sessions` | Historial de tests completados |
+| `test_answers` | Respuestas individuales por sesión |
+| `recommendations` | Recomendaciones generadas y guardadas |
+| `favorite_destinations` | Favoritos con calificación de 1–5 estrellas |
+| `recommendation_feedback` | Comentarios con sentimiento y puntuación de utilidad |
+| `ai_questions_cache` | Caché de preguntas generadas por Ollama |
+| `saved_destinations` | Destinos guardados con notas personales |
 
-### Autenticacion y Seguridad
+### Autenticación y Seguridad
 
-- **JWT (JSON Web Tokens)**: Generacion manual con estructura `header.payload.signature`
-- **Hash de contrasenas**: SHA-256 con salt aleatorio de 16 caracteres
-- **Formato de hash**: `sha256$<salt>$<hash_hex>`
-- Tokens con expiracion de 24 horas
-- Verificacion de token en cada request a rutas protegidas
+- **JWT (JSON Web Tokens):** generación manual HMAC-SHA256, expiración automática de 24 h con logout programado en el cliente.
+- **Hash de contraseñas:** SHA-256 con salt aleatorio de 16 bytes en formato `sha256$<salt>$<hash>`.
+- **Validación de edad:** se requiere ser mayor de 18 años en el registro.
+- **Roles:** `user` y `admin`; rutas de administración protegidas con verificación de rol.
+- **Timing-safe comparison:** las firmas JWT se comparan con `crypto.timingSafeEqual` para prevenir timing attacks.
 
 ---
 
-## Sistema de IA - Arquitectura
-
-### Ollama Microservice
+## Sistema de IA — Arquitectura
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
@@ -67,143 +78,129 @@ La arquitectura simula el patron de APIs REST que usaria un backend Django REST 
 │   (React)       │<────│  /api/ollama     │<────│  localhost:11434│
 └─────────────────┘     └──────────────────┘     └─────────────────┘
                                │
-                               v
+                               ▼
                         ┌──────────────────┐
                         │  llama3.2:3b     │
-                        │  Model           │
                         └──────────────────┘
 ```
 
-### Instalacion de Ollama en Windows
+### Generación de preguntas dinámicas
 
-1. **Descargar Ollama:**
-   ```
-   https://ollama.ai/download/windows
-   ```
+Ollama recibe un system prompt que especifica:
+- Formato JSON estricto con cierre de corchetes y sin comentarios.
+- Lista de **iconos Lucide válidos** para el campo `icon` de cada opción.
+- Mínimo 4 opciones por pregunta, etiquetas en español, valores en `snake_case`.
+- Lotes de hasta 5 categorías por request para distribuir la carga.
 
-2. **Instalar y ejecutar el servicio:**
-   ```cmd
-   ollama serve
-   ```
+### Personalización con historial del usuario
 
-3. **Descargar el modelo LLama 3.2:**
-   ```cmd
-   ollama pull llama3.2:3b
-   ```
+El sistema extrae **insights abstractos** de favoritos y feedback anteriores (sin mencionar nombres de destinos) para personalizar tanto las preguntas como las recomendaciones futuras, evitando sesgos de repetición.
 
-4. **Verificar que esta funcionando:**
-   ```cmd
-   curl http://localhost:11434/api/tags
-   ```
+---
 
-### Prompt de Generacion de Preguntas
+## Pesos Configurables (1–10)
 
-El sistema envia a Ollama un prompt estructurado que especifica:
+El panel de configuración (botón de engranaje en el test) permite ajustar la importancia de cada factor:
 
-- El formato JSON esperado
-- La lista de **iconos Lucide validos** que puede usar
-- Las categorias disponibles (clima, presupuesto, intereses, etc.)
-- Reglas de generacion (4-6 opciones, texto en espanol, etc.)
+| Factor | Descripción |
+|---|---|
+| Clima | Preferencia de temperatura y tipo de clima |
+| Presupuesto | Nivel de gasto esperado |
+| Intereses | Áreas de interés principales |
+| Estilo de viaje | Tipo de experiencia (mochilero, confort, lujo, cultural) |
+| Región | Continente o zona geográfica |
+| Actividades | Actividades específicas preferidas |
+| Gastronomía | Preferencias culinarias |
+| Alojamiento | Tipo de hospedaje |
+| Compañía | Con quién viaja |
+| Seguridad | Nivel de seguridad requerido |
+| Idioma | Importancia de la barrera del idioma |
+| Temporada | Época del año preferida |
+| Vida nocturna | Tipo de actividades nocturnas |
+| Naturaleza | Tipo de entorno natural |
+| Cultura | Aspectos culturales de interés |
+| Aventura | Nivel de actividad física |
+| Conectividad | Necesidad de internet/datos |
+| Fotografía | Importancia de oportunidades fotográficas |
+| Multitudes | Preferencia respecto a zonas turísticas concurridas |
+| Compras | Interés en actividades de compra |
+| Sostenibilidad | Importancia del turismo sostenible |
+| Actividades acuáticas | Interés en deportes o actividades en el agua |
 
-```typescript
-// Ejemplo de respuesta esperada de Ollama
-{
-  "id": "safety_question_1",
-  "category": "safety",
-  "question": "¿Que nivel de seguridad busca en su destino?",
-  "type": "single",
-  "options": [
-    { "value": "muy_seguro", "label": "Muy seguro", "icon": "ShieldCheck" },
-    { "value": "moderado", "label": "Moderado", "icon": "Shield" }
-  ]
-}
+---
+
+## Test de Perfilado
+
+### Modo dinámico (con Ollama)
+25 preguntas generadas por IA distribuidas en estas categorías: clima, presupuesto, duración, intereses, estilo de viaje, continente, actividades, comida, alojamiento, compañía, seguridad, idioma, movilidad, temporada, vida nocturna, naturaleza, cultura, nivel de aventura, conectividad, fotografía, sostenibilidad, compras, multitudes, actividades acuáticas.
+
+### Modo estático (fallback sin Ollama)
+25 preguntas predefinidas que cubren las mismas categorías.
+
+### Formato de opciones
+Cada pregunta muestra entre 4 y 6 opciones con icono Lucide + etiqueta. Las de tipo `multiple` permiten hasta N selecciones configuradas.
+
+---
+
+## Motor de Recomendaciones
+
+El endpoint `/api/recommendations` aplica un algoritmo de scoring ponderado sobre los destinos activos de la base de datos:
+
+| Criterio | Puntos base | Peso |
+|---|---|---|
+| Clima | 30 | `weights.climate` |
+| Presupuesto | 25 | `weights.budget` |
+| Intereses | 20 | `weights.interests` |
+| Estilo de viaje | 15 | `weights.travelStyle` |
+| Continente | 20 | `weights.continent` |
+| Actividades | 15 | `weights.activities` |
+| Seguridad | 10 | `weights.safety` |
+| Idioma | 10 | `weights.language` |
+| Temporada | 10 | `weights.season` |
+| Vida nocturna | 8 | `weights.nightlife` |
+| Naturaleza | 12 | `weights.nature` |
+| Cultura | 12 | `weights.culture` |
+| Aventura | 10 | `weights.adventureLevel` |
+| Conectividad | 8 | `weights.connectivity` |
+| Transporte | 8 | `weights.travelStyle` |
+
+El score final se escala al rango 60–97 % para mostrar compatibilidad. Se retornan los 3 destinos con mayor puntuación.
+
+---
+
+## Información de Vuelos
+
+El módulo de vuelos (`/api/flights`) proporciona:
+- Detección de ciudad de origen por IP (vía `ip-api.com`).
+- Base de datos de códigos IATA para más de 80 ciudades en Latinoamérica, Europa, Asia, África y Oceanía.
+- Estimación de precios por ruta (origen → destino).
+- URL de reserva en Skyscanner con fechas por defecto (30 días desde hoy, 7 días de duración).
+
+---
+
+## Panel de Administración
+
+Accesible en `/admin` únicamente para usuarios con rol `admin`.
+
+**Funcionalidades:**
+- Listar todos los destinos con búsqueda por nombre o país.
+- Crear, editar y eliminar destinos.
+- Activar/desactivar destinos (los inactivos no aparecen en recomendaciones).
+- Estadísticas básicas: total, activos e inactivos.
+
+**Crear usuario admin:**
+```cmd
+npx tsx scripts/create-admin.ts "Nombre Admin" admin@correo.com contraseña123
 ```
 
 ---
 
-## Pesos Configurables (1-10)
+## Perfil de Usuario
 
-El sistema permite al usuario configurar la importancia de cada factor en las recomendaciones:
-
-| Factor | Icono | Descripcion |
-|---|---|---|
-| Clima | Thermometer | Preferencia de temperatura y clima |
-| Presupuesto | Wallet | Nivel de gasto esperado |
-| Intereses | Compass | Areas de interes principal |
-| Estilo de viaje | Backpack | Tipo de experiencia de viaje |
-| Region | Globe | Continente o zona geografica |
-| Actividades | Footprints | Actividades especificas |
-| Gastronomia | UtensilsCrossed | Preferencias culinarias |
-| Alojamiento | Hotel | Tipo de hospedaje |
-| Compania | Users | Con quien viaja |
-| Seguridad | Shield | Nivel de seguridad del destino |
-| Idioma | MessageCircle | Barrera de idioma |
-| Temporada | Calendar | Epoca del ano |
-| Vida nocturna | Moon | Actividades nocturnas |
-| Naturaleza | TreePine | Tipo de entorno natural |
-| Cultura | Landmark | Aspectos culturales |
-| Aventura | Mountain | Nivel de actividad fisica |
-| Conectividad | Wifi | Necesidad de internet |
-
-### UI de Configuracion
-
-El panel de configuracion se abre desde un boton en la esquina superior derecha de la pagina de test:
-
-- Sliders de 1 a 10 para cada parametro
-- Icono + etiqueta a la izquierda
-- Valor numerico X/10 a la derecha
-- Boton de reset a valores predeterminados
-
----
-
-## Test de Perfilado (20 Preguntas Expandidas)
-
-| # | Categoria | Pregunta | Tipo |
-|---|---|---|---|
-| 1 | Clima | Tipo de clima preferido | Unica |
-| 2 | Presupuesto | Presupuesto aproximado | Unica |
-| 3 | Duracion | Tiempo disponible | Unica |
-| 4 | Intereses | Intereses principales | Multiple (3) |
-| 5 | Estilo | Estilo de viaje | Unica |
-| 6 | Continente | Region del mundo | Unica |
-| 7 | Actividades | Actividades preferidas | Multiple (3) |
-| 8 | Gastronomia | Preferencia culinaria | Unica |
-| 9 | Alojamiento | Tipo de hospedaje | Unica |
-| 10 | Compania | Con quien viaja | Unica |
-| 11 | Seguridad | Nivel de seguridad | Unica |
-| 12 | Idioma | Importancia del idioma | Unica |
-| 13 | Temporada | Epoca del ano | Unica |
-| 14 | Vida nocturna | Tipo de vida nocturna | Unica |
-| 15 | Naturaleza | Tipo de naturaleza | Unica |
-| 16 | Cultura | Aspecto cultural | Unica |
-| 17 | Aventura | Nivel de aventura | Unica |
-| 18 | Transporte | Forma de moverse | Unica |
-| 19 | Conectividad | Necesidad de WiFi/datos | Unica |
-| 20 | Salud | Consideraciones de salud | Unica |
-
----
-
-## Base de Datos de Destinos
-
-El sistema incluye **15 destinos reales** con atributos extendidos para matching:
-
-| Destino | Pais | Costo (USD) | Seguridad | Idiomas | Naturaleza |
-|---|---|---|---|---|---|
-| Kioto | Japon | $600-$1,000 | Muy seguro | Ingles, Aprender | Bosques, Montanas |
-| Barcelona | Espana | $400-$800 | Seguro | Espanol, Ingles | Playas |
-| Bali | Indonesia | $300-$600 | Seguro | Ingles, Aprender | Playas, Selva, Montanas |
-| Estambul | Turquia | $350-$700 | Seguro | Ingles, Aprender | - |
-| Cusco | Peru | $250-$500 | Seguro | Espanol | Montanas |
-| Reikiavik | Islandia | $800-$1,500 | Muy seguro | Ingles | Montanas, Desiertos |
-| Cartagena | Colombia | $200-$450 | Moderado | Espanol | Playas |
-| Praga | Rep. Checa | $300-$600 | Muy seguro | Ingles | - |
-| Marrakech | Marruecos | $250-$500 | Moderado | Aprender | Desiertos |
-| Queenstown | Nueva Zelanda | $700-$1,200 | Muy seguro | Ingles | Montanas, Bosques |
-| Ciudad del Cabo | Sudafrica | $400-$800 | Moderado | Ingles | Montanas, Playas |
-| Hanoi | Vietnam | $200-$400 | Seguro | Aprender | Bosques |
-| Lisboa | Portugal | $350-$700 | Muy seguro | Espanol, Ingles | Playas |
-| Dubai | EAU | $500-$1,500 | Muy seguro | Ingles | Desiertos |
-| Buenos Aires | Argentina | $250-$500 | Moderado | Espanol | - |
+En `/profile` el usuario puede:
+- Ver y eliminar destinos favoritos (con calificación de estrellas).
+- Consultar el historial de comentarios con sentimiento y puntuación de utilidad.
+- Cambiar su contraseña con validación de contraseña actual.
 
 ---
 
@@ -214,226 +211,207 @@ wanderia/
 ├── app/
 │   ├── api/
 │   │   ├── auth/
-│   │   │   ├── login/route.ts         # POST - Auth con hash verification
-│   │   │   └── signup/route.ts        # POST - Registro con hash SHA-256
-│   │   ├── ollama/route.ts            # GET/POST - Integracion Ollama
-│   │   └── recommendations/route.ts    # POST - Motor IA con pesos
+│   │   │   ├── login/route.ts
+│   │   │   ├── signup/route.ts
+│   │   │   └── change-password/route.ts
+│   │   ├── admin/destinations/
+│   │   │   ├── route.ts
+│   │   │   └── [id]/route.ts
+│   │   ├── feedback/route.ts
+│   │   ├── favorites/route.ts
+│   │   ├── flights/route.ts
+│   │   ├── ollama/route.ts
+│   │   ├── recommendations/route.ts
+│   │   ├── health/route.ts
+│   │   └── debug/jwt/route.ts
+│   ├── admin/page.tsx
 │   ├── login/page.tsx
 │   ├── signup/page.tsx
-│   ├── test/page.tsx                   # Test + boton config de pesos
+│   ├── test/page.tsx
 │   ├── results/page.tsx
-│   ├── providers.tsx                   # Auth + Theme + Weights providers
+│   ├── profile/page.tsx
+│   ├── providers.tsx
 │   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx
+│   └── layout.tsx
 ├── components/
+│   ├── admin-protected-route.tsx
+│   ├── change-password-modal.tsx
 │   ├── destination-card.tsx
+│   ├── destination-form.tsx
+│   ├── favorite-comment-section.tsx
 │   ├── features-section.tsx
 │   ├── hero-section.tsx
 │   ├── navbar.tsx
 │   ├── protected-route.tsx
 │   ├── question-card.tsx
-│   ├── weights-config.tsx              # Panel de configuracion de pesos
-│   └── ui/
+│   ├── weights-config.tsx
+│   └── ui/                        # Componentes shadcn/ui
 ├── context/
-│   ├── auth-context.tsx                # JWT + hash verification
+│   ├── auth-context.tsx
 │   ├── theme-context.tsx
-│   └── weights-context.tsx             # Estado de pesos configurables
+│   └── weights-context.tsx
 ├── database/
-│   └── schema.sql                      # Esquema SQLite completo
+│   └── schema.sql
 ├── lib/
-│   ├── database.ts                     # Operaciones BD + hash functions
-│   ├── ollama.ts                       # Cliente Ollama + prompts IA
-│   ├── test-questions.ts               # 20 preguntas expandidas
+│   ├── database.ts                # SQLite + JWT + hash functions
+│   ├── ollama.ts                  # Cliente Ollama + prompts IA
+│   ├── test-questions.ts          # 25 preguntas estáticas
 │   └── utils.ts
+├── scripts/
+│   ├── create-admin.ts
+│   ├── init_database.py
+│   ├── seed-destinations.py
+│   ├── setup-ollama.bat
+│   ├── start-wanderia.bat
+│   └── validate-jwt-system.js
+├── tests/
+│   ├── api/
+│   ├── concurrent/
+│   ├── fixtures/
+│   ├── integration/
+│   ├── matrix/
+│   └── unit/
+├── jest.config.js
+├── jest.setup.js
 └── package.json
 ```
 
 ---
 
-## Despliegue en Windows (VS Code)
+## Instalación y Despliegue (Windows)
 
 ### Requisitos
 
-- **Node.js** >= 18.18 (recomendado: 20 LTS)
-- **pnpm** >= 8
-- **Ollama** instalado y ejecutandose
-- **Visual Studio Code**
+- **Node.js** ≥ 18.18 (recomendado: 20 LTS)
+- **pnpm** ≥ 8
+- **Ollama** instalado y ejecutándose (opcional — el sistema funciona sin él)
 
-### Paso 1: Configurar Ollama
+### Paso 1: Configurar Ollama (opcional)
 
 ```cmd
-REM Abrir PowerShell o CMD como administrador
+REM Descargar desde https://ollama.ai/download/windows e instalar
 
-REM Verificar que Ollama esta instalado
-ollama --version
-
-REM Iniciar el servicio de Ollama (en una terminal separada)
+REM En una terminal separada:
 ollama serve
 
-REM En otra terminal, descargar el modelo
+REM Descargar el modelo:
 ollama pull llama3.2:3b
 
-REM Verificar que el modelo esta disponible
+REM Verificar:
 ollama list
 ```
 
-### Paso 2: Clonar y configurar el proyecto
+También puede ejecutar el script incluido:
+```cmd
+scripts\setup-ollama.bat
+```
+
+### Paso 2: Instalar dependencias
 
 ```cmd
-REM Clonar el repositorio
 git clone https://github.com/tu-usuario/wanderia.git
 cd wanderia
-
-REM Instalar dependencias
-npm install
-
-
-REM Crear archivo de variables de entorno (opcional)
-copy .env.example .env.local
+pnpm install
 ```
 
-### Paso 3: Configurar variables de entorno
+### Paso 3: Variables de entorno
 
-Crear archivo `.env.local` en la raiz:
+Crear `.env.local` en la raíz del proyecto:
 
 ```env
+# JWT Secret (mínimo 32 caracteres — cambiar en producción)
+JWT_SECRET=tu_secreto_super_seguro_de_al_menos_32_chars
+
 # Ollama (opcional, usa localhost:11434 por defecto)
 OLLAMA_URL=http://localhost:11434
-
-# JWT Secret (para produccion)
-JWT_SECRET=tu_secreto_super_seguro_aqui
 ```
 
-### Paso 4: Iniciar el desarrollo
+Para validar que el sistema JWT funciona correctamente:
+```cmd
+node scripts\validate-jwt-system.js
+```
+
+### Paso 4: Iniciar la aplicación
 
 ```cmd
-\scripts\start-wanderia.bat
+scripts\start-wanderia.bat
+```
+
+O manualmente:
+```cmd
+pnpm dev
 ```
 
 Abrir `http://localhost:3000` en el navegador.
 
-### Extensiones VS Code Recomendadas
-
-- **ESLint** - Linting de codigo
-- **Prettier** - Formateo de codigo
-- **Tailwind CSS IntelliSense** - Autocompletado Tailwind
-- **TypeScript Vue Plugin** - Soporte TypeScript
-- **REST Client** - Probar APIs desde VS Code
+La base de datos SQLite (`data/wanderia.db`) se crea automáticamente con 8 destinos de ejemplo al primer arranque.
 
 ---
 
 ## Scripts Disponibles
 
-| Comando | Descripcion |
+| Comando | Descripción |
 |---|---|
-| `pnpm dev` | Inicia servidor de desarrollo con Turbopack |
-| `pnpm build` | Genera build de produccion |
-| `pnpm start` | Inicia servidor de produccion |
-| `pnpm lint` | Ejecuta ESLint |
+| `pnpm dev` | Servidor de desarrollo |
+| `pnpm build` | Build de producción |
+| `pnpm start` | Servidor de producción |
+| `pnpm lint` | ESLint |
+| `pnpm test` | Todos los tests con coverage |
+| `pnpm test:unit` | Tests unitarios |
+| `pnpm test:api` | Tests de endpoints |
+| `pnpm test:integration` | Tests de integración |
+| `pnpm test:concurrent` | Tests de concurrencia |
+| `pnpm test:ci` | Tests para CI/CD |
 
 ---
 
-## APIs y Endpoints
+## Suite de Tests
 
-### Internas
-
-| Endpoint | Metodo | Auth | Body | Response |
-|---|---|---|---|---|
-| `/api/auth/signup` | POST | - | `{name, email, password}` | `{token, user}` |
-| `/api/auth/login` | POST | - | `{email, password}` | `{token, user}` |
-| `/api/recommendations` | POST | Bearer JWT | `{answers, weights}` | `{recommendations[], weights_used}` |
-| `/api/ollama` | GET | - | - | `{status, models[]}` |
-| `/api/ollama` | POST | Bearer JWT | `{action, category?, answers?, weights?}` | Varies by action |
-
-### Ollama Actions
-
-| Action | Descripcion | Parametros |
-|---|---|---|
-| `generate_question` | Genera una pregunta por categoria | `category`, `existingQuestions[]` |
-| `generate_questions_batch` | Genera multiples preguntas | `categories[]` |
-| `generate_recommendations` | Genera recomendaciones via IA | `answers`, `weights` |
+```
+tests/
+├── unit/
+│   ├── database.test.ts       # Hash de contraseñas y JWT
+│   └── validation.test.ts     # Validación de emails, contraseñas, etc.
+├── api/
+│   ├── auth-endpoints.test.ts # Flujo de autenticación HTTP
+│   ├── favorites.test.ts      # API de favoritos
+│   └── recommendations.test.ts # API de recomendaciones
+├── integration/
+│   ├── auth-flow.test.ts      # Flujo completo de registro/login
+│   └── test-flow.test.ts      # Flujo test → recomendaciones → feedback
+├── concurrent/
+│   └── concurrency.test.ts    # Registros y sesiones simultáneas
+└── matrix/
+    └── cross-matrix.test.ts   # 367 combinaciones de escenarios
+```
 
 ---
 
 ## Seguridad
 
-### Hash de Contrasenas
+### Hash de contraseñas
 
-```typescript
-// Formato: sha256$<salt_16_chars>$<hash_hex_64_chars>
-// Ejemplo: sha256$a1b2c3d4e5f6g7h8$e3b0c44298fc1c149...
-
-async function hashPassword(password: string): Promise<string> {
-  const salt = crypto.randomUUID().slice(0, 16)
-  const encoder = new TextEncoder()
-  const data = encoder.encode(salt + password)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashHex = Array.from(new Uint8Array(hashBuffer))
-    .map(b => b.toString(16).padStart(2, '0')).join('')
-  return `sha256$${salt}$${hashHex}`
-}
+```
+Formato: sha256$<salt_16_bytes_hex>$<hash_sha256_hex>
 ```
 
-### Verificacion de JWT
+### JWT
 
-```typescript
-function verifyJWT(token: string): Record<string, unknown> | null {
-  const parts = token.split('.')
-  if (parts.length !== 3) return null
-  const payload = JSON.parse(atob(parts[1]))
-  if (payload.exp < Date.now()) return null // Expirado
-  return payload
-}
+```
+Formato: base64url(header).base64url(payload).base64url(signature)
+Algoritmo: HMAC-SHA256
+Expiración: 24 horas
+Comparación: crypto.timingSafeEqual (resistente a timing attacks)
 ```
 
----
+### Validaciones de negocio
 
-## Migracion a Django (Backend Real)
-
-Para migrar a un backend Django con base de datos real:
-
-1. **Crear proyecto Django:**
-   ```bash
-   django-admin startproject wanderia_backend
-   cd wanderia_backend
-   python manage.py startapp accounts
-   python manage.py startapp recommendations
-   ```
-
-2. **Instalar dependencias:**
-   ```bash
-   pip install djangorestframework djangorestframework-simplejwt django-cors-headers bcrypt
-   ```
-
-3. **Crear modelos (accounts/models.py):**
-   ```python
-   from django.contrib.auth.models import AbstractUser
-   from django.db import models
-
-   class User(AbstractUser):
-       pass
-
-   class UserPreferences(models.Model):
-       user = models.OneToOneField(User, on_delete=models.CASCADE)
-       weight_climate = models.IntegerField(default=5)
-       weight_budget = models.IntegerField(default=5)
-       # ... otros pesos
-   ```
-
-4. **Aplicar el schema SQL:**
-   ```bash
-   sqlite3 db.sqlite3 < database/schema.sql
-   ```
-
-5. **Actualizar URLs del frontend:**
-   ```typescript
-   // De: /api/auth/login
-   // A: http://localhost:8000/api/auth/login
-   ```
+- Edad mínima de 18 años para registro.
+- Tokens expirados generan logout automático con redirección a `/login?expired=1`.
+- Rutas de administración verifican rol `admin` en cada request.
 
 ---
 
 ## Licencia
 
-Proyecto academico - WanderIA
+Proyecto académico — WanderIA
